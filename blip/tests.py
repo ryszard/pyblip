@@ -6,9 +6,9 @@ import datetime
 import logging
 
 log = logging.getLogger("blip")
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+ch.setLevel(logging.INFO)
 log.addHandler(ch)
 try:
     (KEY, 
@@ -24,7 +24,7 @@ except KeyError:
 else:
     print "Using key: %r, secret: %r, callback: %r" % (KEY, SECRET, CALLBACK)
 
-from blip import Blip
+from blip import Blip, BlipError
 from oauth import oauth
 
 class TestAuth(TestCase):
@@ -51,11 +51,14 @@ class TestAuth(TestCase):
                                 limit=20, 
                                 raw=True)
         self.assertEqual(res.status, 200)
-        import json
+        try:
+            import json
+        except ImportError:
+            import simplejson as json
         json.load(res)
 
     def test_update(self):
-        text = "to jest test {0}".format(datetime.datetime.now())
+        text = "to jest test %s" % datetime.datetime.now()
         res = self.blip.post('/updates',
                              token=self.token,
                              post_data={'update[body]': text},)
@@ -64,8 +67,15 @@ class TestAuth(TestCase):
         self.assertEqual(up['id'], res['id'])
         self.assertEqual(up['body'], text)
 
+    def test_update_too_long(self):
+        text = ("to jest test %s" % (datetime.datetime.now())) * 20
+        self.assertRaises(BlipError, 
+                          self.blip.post,
+                          '/updates',
+                          token=self.token,
+                          post_data={'update[body]': text},)
     def test_unicode(self):
-        text = u"to jest test zażółć gęślą jaźń {0}".format(datetime.datetime.now())
+        text = u"to jest test zażółć gęślą jaźń %s" % (datetime.datetime.now())
         res = self.blip.post('/updates',
                              token=self.token,
                              post_data={'update[body]': text},)
@@ -81,6 +91,13 @@ class TestAuth(TestCase):
     def test_avatar(self):
         profile = self.blip.get('/users/blipowicztestowicz', token=self.token, include='avatar')
         self.assert_('avatar' in profile)
+
+    def test_shorturl(self):
+        link = 'http://gryziemy.net/2009/6/29/czego-brakuje-flakerowi-i-blipowi'
+        res = self.blip.post('/shortlinks',
+                             token=self.token,
+                             post_data={'shortlink[original_link]': link})
+        self.assert_('url' in res, res)
                                 
 
 

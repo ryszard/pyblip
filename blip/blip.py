@@ -2,7 +2,10 @@ from oauth import oauth
 import urllib
 import httplib
 import datetime
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import logging
 
 log = logging.getLogger("blip")
@@ -14,6 +17,12 @@ class BlipError(Exception):
         self.status = status
         self.read = read
         self.time = time or datetime.datetime.now()
+
+    def __repr__(self):
+        return "BlipError(%r, %r, %r)" % (self.status, self.read, self.time)
+
+    def __str__(self):
+        return repr(self)
 
 class Blip(object):
     protocol = "http://"
@@ -113,7 +122,7 @@ class Blip(object):
             oa = self.prepare_oauth_request(url, token, method=method, **kwargs)
             headers.update(oa.to_header())
         if kwargs:
-            url = "{0}?{1}".format(url, urllib.urlencode(kwargs))
+            url = "%s?%s" % (url, urllib.urlencode(kwargs))
 
         res = self._request(url,
                             method=method,
