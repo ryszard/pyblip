@@ -80,7 +80,7 @@ class TestAuth(TestCase):
 
     def test_avatar(self):
         profile = self.blip.get('/users/blipowicztestowicz', token=self.token, include='avatar')
-        self.fail(profile)
+        self.assert_('avatar' in profile)
                                 
 
 
