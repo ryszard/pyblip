@@ -1,7 +1,7 @@
 from oauth import oauth
-import urllib2
 import urllib
 import httplib
+import datetime
 import json
 import logging
 
@@ -10,7 +10,10 @@ log = logging.getLogger("blip")
 from multipart import encode_multipart_formdata
 
 class BlipError(Exception):
-    pass
+    def __init__(self, status=None, read=None, time=None):
+        self.status = status
+        self.read = read
+        self.time = time or datetime.datetime.now()
 
 class Blip(object):
     protocol = "http://"
@@ -101,16 +104,16 @@ class Blip(object):
     def post(self, url, *args, **kwargs):
         return self.request(url, method='POST', *args, **kwargs)
 
-    def request(self, url, method='GET', token=None, post_data=None, raw=False, **args):
+    def request(self, url, method='GET', token=None, post_data=None, raw=False, **kwargs):
         headers = ({'Accept': 'application/json', 
                     'X-Blip-api': '0.02'})
         if not url.startswith('http://'):
             url = self.protocol + self.host + url
         if token is not None:
-            oa = self.prepare_oauth_request(url, token, method=method, **args)
+            oa = self.prepare_oauth_request(url, token, method=method, **kwargs)
             headers.update(oa.to_header())
-        if args:
-            url = "{0}?{1}".format(url, urllib.urlencode(args))
+        if kwargs:
+            url = "{0}?{1}".format(url, urllib.urlencode(kwargs))
 
         res = self._request(url,
                             method=method,

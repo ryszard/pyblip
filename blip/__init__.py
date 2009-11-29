@@ -1,1 +1,1 @@
-from blip import Blip
+from blip import Blip, BlipError

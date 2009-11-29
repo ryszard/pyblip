@@ -74,6 +74,13 @@ class TestAuth(TestCase):
         
 
                                 
+    def test_profile(self):
+        profile = self.blip.get('/profile', token=self.token)
+        self.assert_('id' in profile)
+
+    def test_avatar(self):
+        profile = self.blip.get('/users/blipowicztestowicz', token=self.token, include='avatar')
+        self.fail(profile)
                                 
 
 
