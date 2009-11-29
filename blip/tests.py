@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 from unittest import TestCase
 import os
+import datetime
+
 import logging
 
 log = logging.getLogger("blip")
@@ -52,7 +55,6 @@ class TestAuth(TestCase):
         json.load(res)
 
     def test_update(self):
-        import datetime
         text = "to jest test {0}".format(datetime.datetime.now())
         res = self.blip.post('/updates',
                              token=self.token,
@@ -60,7 +62,16 @@ class TestAuth(TestCase):
                  
         up = self.blip.get('/statuses/%s' % res['id'])
         self.assertEqual(up['id'], res['id'])
-        self.assertEqual(up['body'], res['body'])
+        self.assertEqual(up['body'], text)
+
+    def test_unicode(self):
+        text = u"to jest test zażółć gęślą jaźń {0}".format(datetime.datetime.now())
+        res = self.blip.post('/updates',
+                             token=self.token,
+                             post_data={'update[body]': text},)
+        up = self.blip.get('/statuses/%s' % res['id'])
+        self.assertEqual(up['body'], text)
+        
 
                                 
                                 

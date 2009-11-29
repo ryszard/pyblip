@@ -68,10 +68,14 @@ def encode_multipart_formdata(fields):
                         'contenttype': str(get_content_type(filename))
                     }
         else:
+            try:
+                value = str(value)
+            except UnicodeEncodeError:
+                value = value.encode('utf-8')
             body += ENCODE_TEMPLATE % {
                         'boundary': BOUNDARY,
                         'name': str(key),
-                        'value': str(value)
+                        'value': value
                     }
 
     body += '--%s--\n\r' % BOUNDARY
