@@ -14,8 +14,8 @@ from multipart import encode_multipart_formdata
 
 class BlipError(Exception):
     def __init__(self, status=None, read=None, time=None):
-        self.status = status
         self.read = read
+        self.status = status
         self.time = time or datetime.datetime.now()
 
     def __repr__(self):
@@ -23,6 +23,26 @@ class BlipError(Exception):
 
     def __str__(self):
         return repr(self)
+
+class DuplicateError(BlipError):
+    pass
+
+class NotFoundError(BlipError):
+    pass
+
+def make_blip_error(status, read):
+    klas = BlipError
+    try:
+        read = json.loads(read)
+    except ValueError:
+        pass
+    else:
+        if status==400:
+            if read['error_message'] == 'Duplikat statusu':
+                klas = DuplicateError
+        elif status == 404:
+            klas = NotFoundError
+    return klas(status, read)
 
 class Blip(object):
     protocol = "http://"
@@ -129,5 +149,5 @@ class Blip(object):
                             data=post_data, 
                             headers=headers)
         if not raw and not str(res.status).startswith('2'):
-            raise BlipError(res.status, res.read())
+            raise make_blip_error(res.status, res.read())
         return json.load(res) if not raw else res
