@@ -52,10 +52,14 @@ class Blip(object):
     access_token_url  = 'http://blip.pl/oauth/access_token'
     authorization_url = 'http://blip.pl/oauth/authorize'
     signature_method = oauth.OAuthSignatureMethod_HMAC_SHA1()
+    user_agent = 'PyBlip v. 0.1'
 
     def __init__(self, key=None, secret=None, callback=None):
         self.consumer = oauth.OAuthConsumer(key, secret)
         self.callback = callback
+        self.initialize_http()
+
+    def initialize_http(self):
         self.http = httplib.HTTPConnection(self.host, self.port)
 
     def _request(self, url, method='GET', headers={}, data=None, timeout=None):
@@ -64,7 +68,7 @@ class Blip(object):
 
         """
         headers = dict(headers)
-        headers['User-Agent'] = 'blipetycje'
+        headers['User-Agent'] = self.user_agent
         if data:
             data, content_type = encode_multipart_formdata(data)
             headers["Content-type"] = content_type
