@@ -32,16 +32,11 @@ class NotFoundError(BlipError):
 
 def make_blip_error(status, read):
     klas = BlipError
-    try:
-        read = json.loads(read)
-    except ValueError:
-        pass
-    else:
-        if status==400:
-            if read['error_message'] == 'Duplikat statusu':
-                klas = DuplicateError
-        elif status == 404:
-            klas = NotFoundError
+    if status == 404:
+        klas = NotFoundError
+    elif status==400:
+        if 'Duplikat statusu' in read:
+            klas = DuplicateError
     return klas(status, read)
 
 class Blip(object):
@@ -116,6 +111,7 @@ class Blip(object):
             token
         )
         req = self._request(oa_req.to_url())
+        ress = req.data
         res = req.read()
         return oauth.OAuthToken.from_string(res)
 
