@@ -23,9 +23,10 @@ Features
     structure of the REST API to Python methods or from JSON responses
     to Python objects. You are supposed to pass paths as
     arguments. This means that you need to have constantly open only
-    *one* document: the documentation of the API, instead of the docs
-    of the API *and* the pyblip. Also, it doesn't get out of date so
-    easily.
+    *one* document: the [documentation of the
+    API](http://www.blip.pl/api-0.02.html), instead of the docs of the
+    API *and* `pyblip`. As a bonus, the library shouldn't get out of
+    date so quickly.
 
   * It's easy to make it use a different http client (just write your
     own `Blip._request` and `Blip.initialize_http` methods).
@@ -64,7 +65,7 @@ authorized access token.
 Django example
 --------------
 
-It is rather unfortunate that OAuth is a rather complex technology, so
+It is unfortunate that OAuth is a rather complex technology, so
 it is going to be very hard to use it unless you actually understand
 what's going on. The [OAuth specification](http://oauth.net/core/1.0a)
 is really well written, so it may be a good idea to at least scheme
